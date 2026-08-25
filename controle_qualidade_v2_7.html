@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Qualidade — Avaliação Sensorial</title>
+<meta name="description" content="Sistema profissional de controle de qualidade com avaliação sensorial e IA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+/* ── Tokens ─────────────────────────────────────────────────────────────────── */
+:root {
+  --font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --r-sm:6px;--r-md:10px;--r-lg:16px;
+  --bg:#080c18;--bg2:#0d1220;
+  --card:rgba(255,255,255,.045);--card-hov:rgba(255,255,255,.075);
+  --inp:rgba(255,255,255,.065);
+  --bdr:rgba(255,255,255,.08);--bdr-str:rgba(255,255,255,.14);
+  --txt:#f1f5f9;--txt2:#94a3b8;--txt3:#64748b;
+  --acc:#6366f1;--acc2:#818cf8;
+  --acc-bg:rgba(99,102,241,.12);--acc-bdr:rgba(99,102,241,.28);
+  --ok:#10b981;--ok-bg:rgba(16,185,129,.1);--ok-bdr:rgba(16,185,129,.25);--ok-txt:#34d399;
+  --err:#ef4444;--err-bg:rgba(239,68,68,.1);--err-bdr:rgba(239,68,68,.25);--err-txt:#f87171;
+  --warn:#f59e0b;
+  --shd:0 8px 40px rgba(0,0,0,.45);--shd-sm:0 2px 12px rgba(0,0,0,.3);
+}
+[data-theme="light"]{
+  --bg:#eef2ff;--bg2:#e0e7ff;
+  --card:rgba(255,255,255,.88);--card-hov:rgba(255,255,255,.98);
+  --inp:#fff;
+  --bdr:rgba(0,0,0,.07);--bdr-str:rgba(0,0,0,.13);
+  --txt:#0f172a;--txt2:#475569;--txt3:#94a3b8;
+  --acc:#4f46e5;--acc2:#6366f1;
+  --acc-bg:rgba(79,70,229,.08);--acc-bdr:rgba(79,70,229,.22);
+  --ok:#059669;--ok-bg:rgba(5,150,105,.08);--ok-bdr:rgba(5,150,105,.2);--ok-txt:#047857;
+  --err:#dc2626;--err-bg:rgba(220,38,38,.08);--err-bdr:rgba(220,38,38,.2);--err-txt:#b91c1c;
+  --shd:0 4px 24px rgba(0,0,0,.09);--shd-sm:0 2px 8px rgba(0,0,0,.06);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  font-family:var(--font);background:var(--bg);color:var(--txt);
+  min-height:100vh;transition:background .3s,color .3s;position:relative;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 90% 60% at 60% -10%,rgba(99,102,241,.18),transparent 60%),
+    radial-gradient(ellipse 60% 40% at 10% 80%, rgba(99,102,241,.08),transparent 50%);
+}
+[data-theme="light"] body::before{
+  background:
+    radial-gradient(ellipse 90% 60% at 60% -10%,rgba(79,70,229,.1),transparent 60%),
+    radial-gradient(ellipse 60% 40% at 10% 80%, rgba(79,70,229,.05),transparent 50%);
+}
+.page{max-width:980px;margin:0 auto;padding:1.75rem 1.5rem 3rem;position:relative;z-index:1;}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+.site-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--bdr);
+}
+.site-title{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;letter-spacing:-.02em;}
+.logo-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:linear-gradient(135deg,#6366f1,#818cf8);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:#fff;box-shadow:0 4px 12px rgba(99,102,241,.4);flex-shrink:0;
+}
+.site-subtitle{font-size:12px;font-weight:400;color:var(--txt3);margin-top:1px;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.save-pill{
+  display:flex;align-items:center;gap:4px;font-size:11px;font-weight:500;
+  color:var(--ok-txt);background:var(--ok-bg);border:1px solid var(--ok-bdr);
+  border-radius:20px;padding:3px 10px;opacity:0;transition:opacity .4s;
+}
+.save-pill.show{opacity:1;}
+.icon-btn{
+  width:36px;height:36px;border-radius:50%;border:1px solid var(--bdr-str);
+  background:var(--card);color:var(--txt2);font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.icon-btn:hover{background:var(--card-hov);color:var(--acc);border-color:var(--acc-bdr);}
+
+/* ── Cards ──────────────────────────────────────────────────────────────────── */
+.card{
+  background:var(--card);border:1px solid var(--bdr);border-radius:var(--r-lg);
+  padding:1.25rem;margin-bottom:.875rem;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  box-shadow:var(--shd-sm);transition:background .25s;
+}
+.card-title{
+  font-size:11px;font-weight:600;color:var(--txt3);
+  text-transform:uppercase;letter-spacing:.08em;margin-bottom:1rem;
+  display:flex;align-items:center;gap:6px;
+}
+.card-title>i{font-size:14px;color:var(--acc);}
+
+/* ── Inputs ──────────────────────────────────────────────────────────────────── */
+input,select,textarea{
+  font-family:var(--font);font-size:13px;color:var(--txt);
+  background:var(--inp);border:1px solid var(--bdr-str);border-radius:var(--r-md);
+  outline:none;transition:border-color .15s,box-shadow .15s,background .25s;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--acc);box-shadow:0 0 0 3px rgba(99,102,241,.2);
+}
+input::placeholder,textarea::placeholder{color:var(--txt3);}
+select option{background:var(--bg2);color:var(--txt);}
+.field-group{display:flex;flex-direction:column;gap:4px;}
+.field-group label{font-size:11.5px;font-weight:500;color:var(--txt2);}
+.field-group input,.field-group select{padding:7px 10px;}
+.field-group textarea{padding:8px 10px;resize:vertical;min-height:64px;}
+.field-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;}
+
+/* ── Upload ──────────────────────────────────────────────────────────────────── */
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.upload-label{font-size:12px;font-weight:500;margin-bottom:6px;color:var(--txt2);}
+.upload-zone{
+  border:1.5px dashed var(--bdr-str);border-radius:var(--r-md);
+  padding:1.5rem 1rem;text-align:center;cursor:pointer;
+  position:relative;background:var(--inp);transition:all .2s;
+}
+.upload-zone:hover{border-color:var(--acc);background:var(--acc-bg);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-zone i{font-size:28px;color:var(--txt3);display:block;margin-bottom:6px;transition:color .2s;}
+.upload-zone:hover i{color:var(--acc2);}
+.upload-zone span{font-size:12px;color:var(--txt2);}
+.preview-img{max-height:130px;border-radius:8px;margin-top:10px;object-fit:contain;width:100%;}
+
+/* ── Sensorial ───────────────────────────────────────────────────────────────── */
+.sens-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:12px;margin-bottom:1rem;}
+.sens-item{display:flex;flex-direction:column;gap:6px;align-items:center;position:relative;}
+.sens-lbl{font-size:12px;font-weight:500;color:var(--txt2);text-align:center;line-height:1.3;}
+.stars{display:flex;gap:2px;}
+.star{font-size:21px;cursor:pointer;color:var(--bdr-str);transition:color .1s,transform .12s;user-select:none;line-height:1;}
+.star:hover{transform:scale(1.2);}
+.star.on{color:#f59e0b;}
+.sens-inp{width:82px;text-align:center;padding:6px 8px;}
+.sens-inp-txt{width:90px;text-align:center;padding:6px 8px;}
+
+/* Remove btn on custom sens items */
+.sens-remove{
+  position:absolute;top:-4px;right:-4px;width:18px;height:18px;border-radius:50%;
+  border:none;background:var(--err-bg);color:var(--err-txt);
+  font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .15s;line-height:1;
+}
+.sens-item:hover .sens-remove{opacity:1;}
+
+/* Add sensorial inline form */
+.add-sens-row{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  margin-top:.25rem;padding-top:1rem;border-top:1px dashed var(--bdr);
+}
+.add-sens-form{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  background:var(--acc-bg);border:1px solid var(--acc-bdr);
+  border-radius:var(--r-md);padding:8px 12px;margin-top:.5rem;
+}
+.add-sens-form input,.add-sens-form select{padding:5px 9px;font-size:12px;}
+
+/* ── Approval ────────────────────────────────────────────────────────────────── */
+.aprov-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.aprov-btn{
+  padding:8px 20px;border-radius:var(--r-md);font-size:13px;
+  font-family:var(--font);border:1px solid var(--bdr-str);cursor:pointer;
+  background:var(--inp);color:var(--txt2);font-weight:500;transition:all .2s;
+  display:flex;align-items:center;gap:6px;
+}
+.aprov-btn:hover{background:var(--card-hov);}
+.aprov-btn.ok {background:var(--ok-bg); border-color:var(--ok-bdr); color:var(--ok-txt);  font-weight:600;}
+.aprov-btn.err{background:var(--err-bg);border-color:var(--err-bdr);color:var(--err-txt); font-weight:600;}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────────── */
+.btn{
+  padding:8px 16px;border-radius:var(--r-md);font-size:13px;font-family:var(--font);
+  cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  font-weight:500;border:1px solid var(--bdr-str);transition:all .2s;
+}
+.btn-acc{
+  background:linear-gradient(135deg,#6366f1,#818cf8);
+  border-color:transparent;color:#fff;
+  box-shadow:0 2px 12px rgba(99,102,241,.35);
+}
+.btn-acc:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 18px rgba(99,102,241,.45);}
+.btn-def{background:var(--card);color:var(--txt);}
+.btn-def:hover{background:var(--card-hov);}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--txt2);}
+.btn-ghost:hover{background:var(--card);color:var(--txt);}
+.btn-ai{background:var(--acc-bg);border-color:var(--acc-bdr);color:var(--acc2);font-size:12px;padding:5px 12px;}
+.btn-ai:hover{opacity:.82;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+
+/* ── Edit banner ─────────────────────────────────────────────────────────────── */
+.edit-banner{
+  background:var(--acc-bg);border:1px solid var(--acc-bdr);border-radius:var(--r-md);
+  padding:9px 14px;font-size:13px;color:var(--acc2);
+  display:flex;align-items:center;gap:8px;margin-bottom:.875rem;
+}
+.edit-banner strong{color:var(--txt);}
+.action-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:.875rem;}
+
+/* ── Status ──────────────────────────────────────────────────────────────────── */
+.st-msg{font-size:12px;padding:6px 10px;border-radius:var(--r-sm);margin-top:6px;line-height:1.45;}
+.st-info{background:var(--acc-bg);color:var(--acc2);}
+.st-ok  {background:var(--ok-bg); color:var(--ok-txt);}
+.st-err {background:var(--err-bg);color:var(--err-txt);}
+
+/* ── Stats ───────────────────────────────────────────────────────────────────── */
+.stats-toggle-row{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.stats-toggle-row .arrow{margin-left:auto;transition:transform .3s;font-size:16px;}
+.stats-toggle-row.open .arrow{transform:rotate(180deg);}
+.stats-body{margin-top:1rem;}
+.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem;}
+.stat-card{background:var(--inp);border:1px solid var(--bdr);border-radius:var(--r-md);padding:.9rem;text-align:center;}
+.stat-val{font-size:26px;font-weight:700;line-height:1.1;}
+.stat-val.ok    {color:var(--ok);}
+.stat-val.err   {color:var(--err);}
+.stat-val.accent{color:var(--acc2);}
+.stat-lbl{font-size:11px;color:var(--txt3);margin-top:3px;font-weight:500;}
+.sabor-block{margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--bdr);}
+.sabor-block:first-child{margin-top:0;padding-top:0;border-top:none;}
+.sabor-title{font-size:13px;font-weight:600;color:var(--txt);margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.sabor-title .cnt{font-weight:400;color:var(--txt3);font-size:11px;}
+.quad-grid{display:flex;flex-direction:column;gap:14px;}
+.quad-box{background:var(--inp);border:1px solid var(--bdr);border-radius:var(--r-md);padding:.9rem;}
+.quad-title{font-size:12px;font-weight:700;color:var(--acc2);text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid var(--bdr);
+  display:flex;align-items:center;gap:6px;}
+.quad-empty{font-size:11px;color:var(--txt3);padding:.25rem 0;}
+.sabor-item{padding:.6rem 0;border-bottom:1px solid var(--bdr);}
+.sabor-item:last-child{border-bottom:none;}
+.sabor-item-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  flex-wrap:wrap;margin-bottom:4px;cursor:pointer;user-select:none;}
+.sabor-item-name{font-size:12.5px;font-weight:600;color:var(--txt);display:flex;align-items:center;gap:5px;}
+.sabor-item-name i{font-size:12px;color:var(--txt3);transition:transform .2s;}
+.sabor-item-meta{font-size:10.5px;color:var(--txt3);white-space:nowrap;}
+.sabor-item-ratings{display:flex;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--txt2);}
+.sabor-item-ratings b{color:var(--txt);font-weight:600;}
+.sabor-chart-wrap{margin-top:10px;padding-top:10px;border-top:1px dashed var(--bdr);}
+.sabor-chart-ttl{font-size:10.5px;font-weight:600;color:var(--txt3);text-transform:uppercase;
+  letter-spacing:.05em;margin-bottom:6px;text-align:center;}
+canvas{max-width:100%;display:block;margin:0 auto;}
+
+/* ── Filter bar ──────────────────────────────────────────────────────────────── */
+.filter-bar{
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+  margin-bottom:.875rem;padding:10px 14px;
+  background:var(--card);border:1px solid var(--bdr);border-radius:var(--r-md);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+}
+.filter-bar input,.filter-bar select{padding:6px 10px;font-size:12px;}
+.f-search{flex:1;min-width:160px;}
+.f-lbl{font-size:11px;font-weight:600;color:var(--txt3);white-space:nowrap;}
+
+/* ── Table ───────────────────────────────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{
+  background:var(--inp);padding:9px 10px;text-align:left;
+  font-weight:600;font-size:10.5px;color:var(--txt3);
+  border-bottom:1px solid var(--bdr);white-space:nowrap;
+  text-transform:uppercase;letter-spacing:.05em;
+  position:sticky;top:0;z-index:2;
+}
+td{
+  padding:8px 10px;border-bottom:1px solid var(--bdr);color:var(--txt);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;
+  transition:background .1s;
+}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--card-hov);}
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+.b-ok {background:var(--ok-bg); color:var(--ok-txt);  border:1px solid var(--ok-bdr);}
+.b-err{background:var(--err-bg);color:var(--err-txt); border:1px solid var(--err-bdr);}
+.row-btns{display:flex;gap:2px;}
+.row-btn{
+  width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+  border-radius:6px;border:none;background:transparent;cursor:pointer;
+  color:var(--txt3);font-size:14px;transition:all .15s;
+}
+.row-btn:hover      {background:var(--card-hov);color:var(--txt);}
+.row-btn.edit:hover {background:var(--acc-bg);  color:var(--acc2);}
+.row-btn.del:hover  {background:var(--err-bg);  color:var(--err-txt);}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--txt3);font-size:13px;}
+.empty-state i{font-size:34px;display:block;margin-bottom:8px;opacity:.35;}
+.export-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem;}
+
+/* ── Responsive ──────────────────────────────────────────────────────────────── */
+@media(max-width:640px){
+  .upload-grid{grid-template-columns:1fr;}
+  .sens-grid  {grid-template-columns:repeat(3,1fr);}
+  .stat-cards {grid-template-columns:repeat(2,1fr);}
+  .page       {padding:1rem 1rem 3rem;}
+  .field-grid {grid-template-columns:1fr;}
+}
+@media print{
+  body{background:#fff!important;color:#000!important;}
+  body::before{display:none;}
+  .upload-grid,.btn-ai,.sens-grid,.aprov-btns,
+  .edit-banner,.action-row,.filter-bar,.export-bar,
+  .row-btns,.add-sens-row,.site-header .header-right{display:none!important;}
+  .card{box-shadow:none!important;border:1px solid #ddd!important;
+        background:#fff!important;backdrop-filter:none!important;}
+  .stat-card{border:1px solid #ddd!important;background:#fff!important;}
+  th{background:#f5f5f5!important;color:#333!important;}
+  td{color:#000!important;}
+}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="page">
+
+<!-- ── Header ──────────────────────────────────────────────────────────────── -->
+<header class="site-header">
+  <div class="site-title">
+    <div class="logo-icon"><i class="ti ti-clipboard-check"></i></div>
+    <div>
+      Controle de Qualidade
+      <div class="site-subtitle">Avaliação Sensorial · Caffeine · Koala · Sublyme</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="save-pill" id="savePill"><i class="ti ti-check"></i> Salvo</div>
+    <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Alternar tema">
+      <i class="ti ti-moon" id="themeIco"></i>
+    </button>
+  </div>
+</header>
+
+<!-- ── Stats ────────────────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title stats-toggle-row" id="statsToggle" onclick="toggleStats()">
+    <i class="ti ti-chart-bar"></i>
+    Estatísticas e Gráficos
+    <i class="ti ti-chevron-down arrow"></i>
+  </div>
+  <div class="stats-body" id="statsBody" style="display:none">
+    <div class="stat-cards" id="statCards"></div>
+    <div id="saborStats"></div>
+  </div>
+</div>
+
+<!-- ── Fotos ─────────────────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title"><i class="ti ti-camera"></i>Fotos do produto</div>
+  <div class="upload-grid">
+    <div>
+      <div class="upload-label">Foto 1 — Rótulo (nome do produto)</div>
+      <div class="upload-zone">
+        <i class="ti ti-camera-plus"></i>
+        <span>Clique ou arraste a foto do rótulo</span>
+        <input type="file" accept="image/*" id="img1" onchange="handleImg(1,this)">
+      </div>
+      <img id="prev1" class="preview-img" style="display:none" alt="Preview foto 1">
+      <div id="st1"></div>
+      <button class="btn btn-ai" style="margin-top:8px" onclick="readLabel()">
+        <i class="ti ti-sparkles"></i> Ler nome (IA)
+      </button>
+    </div>
+    <div>
+      <div class="upload-label">Foto 2 — Lote e Validade</div>
+      <div class="upload-zone">
+        <i class="ti ti-camera-plus"></i>
+        <span>Clique ou arraste a foto do lote/validade</span>
+        <input type="file" accept="image/*" id="img2" onchange="handleImg(2,this)">
+      </div>
+      <img id="prev2" class="preview-img" style="display:none" alt="Preview foto 2">
+      <div id="st2"></div>
+      <button class="btn btn-ai" style="margin-top:8px" onclick="readLoteVal()">
+        <i class="ti ti-sparkles"></i> Ler lote e validade (IA)
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Dados ─────────────────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title"><i class="ti ti-package"></i>Dados do produto</div>
+  <div class="field-grid">
+    <div class="field-group">
+      <label>Data de registro</label>
+      <input type="date" id="fData">
+    </div>
+    <div class="field-group">
+      <label>Marca</label>
+      <select id="fMarca" onchange="onMarcaChange()">
+        <option value="">Selecione a marca...</option>
+        <option value="Caffeine">Caffeine</option>
+        <option value="Koala">Koala</option>
+        <option value="Sublyme">Sublyme</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>Produto</label>
+      <input type="text" id="fNome" list="productList" placeholder="Selecione ou detecte via IA"
+        oninput="onProductInput()" onchange="onProductChange()">
+      <datalist id="productList"></datalist>
+    </div>
+    <div class="field-group">
+      <label>Lote</label>
+      <input type="text" id="fLote" placeholder="Detectado da foto 2">
+    </div>
+    <div class="field-group">
+      <label>Validade</label>
+      <input type="text" id="fVal" placeholder="Detectado da foto 2">
+    </div>
+  </div>
+</div>
+
+<!-- ── Avaliação sensorial ───────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title"><i class="ti ti-flask"></i>Avaliação sensorial</div>
+
+  <!-- Campos fixos -->
+  <div class="sens-grid" id="sensGridFixed">
+    <div class="sens-item">
+      <div class="sens-lbl">Sabor</div>
+      <div class="stars" id="star-sabor"></div>
+    </div>
+    <div class="sens-item">
+      <div class="sens-lbl">Textura</div>
+      <div class="stars" id="star-textura"></div>
+    </div>
+    <div class="sens-item">
+      <div class="sens-lbl">Odor</div>
+      <div class="stars" id="star-odor"></div>
+    </div>
+    <div class="sens-item">
+      <div class="sens-lbl">pH</div>
+      <input type="number" id="fPh" placeholder="0.0" step="0.1" min="0" max="14" class="sens-inp">
+    </div>
+  </div>
+
+  <!-- Campos customizados (renderizados pelo JS) -->
+  <div class="sens-grid" id="sensGridCustom" style="display:none"></div>
+
+  <!-- Adicionar critério -->
+  <div class="add-sens-row">
+    <button class="btn btn-def btn-sm" onclick="toggleAddSens()">
+      <i class="ti ti-plus"></i> Adicionar critério sensorial
+    </button>
+    <span style="font-size:11px;color:var(--txt3)" id="customCount"></span>
+  </div>
+  <div class="add-sens-form" id="addSensForm" style="display:none">
+    <i class="ti ti-flask" style="color:var(--acc2);font-size:16px;flex-shrink:0"></i>
+    <input type="text" id="newSensLabel" placeholder="Nome do critério (ex: Cremosidade)" style="flex:1;min-width:150px">
+    <select id="newSensType" style="flex-shrink:0">
+      <option value="stars">⭐ Estrelas (1–5)</option>
+      <option value="number">🔢 Número</option>
+      <option value="text">✏️ Texto livre</option>
+    </select>
+    <button class="btn btn-acc btn-sm" onclick="addCustomSens()">Adicionar</button>
+    <button class="btn btn-ghost btn-sm" onclick="toggleAddSens()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ── Observações ───────────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title"><i class="ti ti-notes"></i>Observações / Não-conformidades</div>
+  <div class="field-group">
+    <textarea id="fObs" placeholder="Notas adicionais sobre o produto, processo ou não-conformidades..."></textarea>
+  </div>
+</div>
+
+<!-- ── Aprovação ─────────────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title"><i class="ti ti-checks"></i>Aprovação</div>
+  <div class="aprov-btns">
+    <button class="aprov-btn" id="btnAprov" onclick="setAprov('Aprovado')">
+      <i class="ti ti-circle-check"></i> Aprovado
+    </button>
+    <button class="aprov-btn" id="btnRepr" onclick="setAprov('Reprovado')">
+      <i class="ti ti-circle-x"></i> Reprovado
+    </button>
+  </div>
+</div>
+
+<!-- ── Edit banner ───────────────────────────────────────────────────────────── -->
+<div class="edit-banner" id="editBanner" style="display:none">
+  <i class="ti ti-pencil"></i>
+  Editando: <strong id="editLabel"></strong>
+  <span style="margin-left:auto;font-size:11px;color:var(--txt3)">Altere e clique em "Salvar edição"</span>
+</div>
+
+<!-- ── Actions ───────────────────────────────────────────────────────────────── -->
+<div class="action-row">
+  <button class="btn btn-acc" id="addBtn" onclick="addRow()">
+    <i class="ti ti-plus"></i> Adicionar registro
+  </button>
+  <button class="btn btn-ghost" id="cancelBtn" onclick="cancelEdit()" style="display:none">
+    <i class="ti ti-x"></i> Cancelar edição
+  </button>
+  <button class="btn btn-ghost" onclick="clearForm()">
+    <i class="ti ti-eraser"></i> Limpar
+  </button>
+</div>
+
+<!-- ── Filtros ───────────────────────────────────────────────────────────────── -->
+<div class="filter-bar">
+  <i class="ti ti-filter" style="color:var(--txt3);font-size:14px;flex-shrink:0"></i>
+  <input class="f-search" type="search" id="fltTxt" placeholder="Buscar produto, lote, observação..." oninput="applyFilter()">
+  <select id="fltAprov" onchange="applyFilter()" style="padding:6px 10px;font-size:12px">
+    <option value="all">Todas aprovações</option>
+    <option value="Aprovado">✓ Aprovado</option>
+    <option value="Reprovado">✗ Reprovado</option>
+    <option value="">Sem status</option>
+  </select>
+  <select id="fltMarca" onchange="applyFilter()" style="padding:6px 10px;font-size:12px">
+    <option value="">Todas as marcas</option>
+    <option value="Caffeine">Caffeine</option>
+    <option value="Koala">Koala</option>
+    <option value="Sublyme">Sublyme</option>
+  </select>
+  <span class="f-lbl">De</span>
+  <input type="date" id="fltFrom" onchange="applyFilter()" style="padding:5px 8px;font-size:12px">
+  <span class="f-lbl">até</span>
+  <input type="date" id="fltTo" onchange="applyFilter()" style="padding:5px 8px;font-size:12px">
+  <button class="btn btn-ghost" onclick="clearFilter()" title="Limpar filtros"
+    style="font-size:12px;padding:5px 10px;border:1px solid var(--bdr-str)">
+    <i class="ti ti-x"></i>
+  </button>
+</div>
+
+<!-- ── Tabela ────────────────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">
+    <i class="ti ti-list-details"></i>
+    Registros
+    <span id="countBadge" style="font-weight:400;color:var(--txt3);text-transform:none;letter-spacing:0"></span>
+  </div>
+  <div class="tbl-wrap">
+    <table id="tbl">
+      <thead id="tblHead"><tr id="tblHeadRow"></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="export-bar">
+    <button class="btn btn-def" onclick="exportCSV()">
+      <i class="ti ti-file-spreadsheet" style="font-size:15px"></i> Exportar CSV
+    </button>
+    <button class="btn btn-def" onclick="exportExcel()">
+      <i class="ti ti-file-type-xls" style="font-size:15px"></i> Exportar Excel
+    </button>
+    <button class="btn btn-def" onclick="exportPDF()">
+      <i class="ti ti-file-type-pdf" style="font-size:15px"></i> Exportar PDF
+    </button>
+  </div>
+</div>
+
+</div><!-- /.page -->
+<script>
+// ── Config (hardcoded, invisible to user) ────────────────────────────────────
+const AI_KEY   = 'AQ.Ab8RN6IMiFpZe-qUB7id2AWBvCYpAwGn3-5VP6K6jGF__zFT3Q';
+const AI_MODEL = 'gemini-2.5-flash';
+
+// ── Lista de produtos ────────────────────────────────────────────────────────
+const PRODUCTS = [
+  {marca:'Caffeine',produto:'Creatina Creapure - 250g'},
+  {marca:'Koala',   produto:'Koala Chocolate 264g'},
+  {marca:'Koala',   produto:'Koala Chocolate 456g'},
+  {marca:'Koala',   produto:'Koala Morango 264g'},
+  {marca:'Koala',   produto:'Koala Morango 456g'},
+  {marca:'Sublyme', produto:'MS Limão 144g'},
+  {marca:'Sublyme', produto:'MS Melancia 144g'},
+  {marca:'Sublyme', produto:'MS Tangerina 144g'},
+  {marca:'Caffeine',produto:'SC Beijinho 220g'},
+  {marca:'Caffeine',produto:'SC Beijinho 380g'},
+  {marca:'Caffeine',produto:'SC Chocolate 220g'},
+  {marca:'Caffeine',produto:'SC Chocolate 380g'},
+  {marca:'Caffeine',produto:'SC Choconilla 220g'},
+  {marca:'Caffeine',produto:'SC Choconilla 380g'},
+  {marca:'Caffeine',produto:'SC Doce de Leite 220g'},
+  {marca:'Caffeine',produto:'SC Doce de Leite 380g'},
+  {marca:'Caffeine',produto:'SC Lajotinha 220g'},
+  {marca:'Caffeine',produto:'SC Lajotinha 380g'},
+  {marca:'Caffeine',produto:'SC Lingua de Gato 220g'},
+  {marca:'Caffeine',produto:'SC Lingua de Gato 380g'},
+  {marca:'Caffeine',produto:'SC Original 220g'},
+  {marca:'Caffeine',produto:'SC Original 380g'},
+  {marca:'Caffeine',produto:'SC Vanilla 220g'},
+  {marca:'Caffeine',produto:'SC Vanilla 380g'},
+  {marca:'Caffeine',produto:'SC Paçoca 220g'},
+  {marca:'Caffeine',produto:'SC Paçoca 380g'},
+  {marca:'Caffeine',produto:'SC Pistache 220g'},
+  {marca:'Caffeine',produto:'SC Pistache 380g'},
+  {marca:'Caffeine',produto:'SC Doce de Leite Stick'},
+  {marca:'Caffeine',produto:'Stick SC Chocolate'},
+  {marca:'Caffeine',produto:'Stick SC Choconilla'},
+  {marca:'Caffeine',produto:'Stick SC Beijinho'},
+  {marca:'Caffeine',produto:'Stick SC Vanilla Latte'},
+  {marca:'Caffeine',produto:'Stick SC Original'},
+  {marca:'Caffeine',produto:'Stick SC Lingua de Gato'},
+  {marca:'Caffeine',produto:'Stick SC Lajotinha'},
+  {marca:'Koala',   produto:'Stick Koala Baunilha'},
+  {marca:'Koala',   produto:'Stick Koala Chocolate'},
+  {marca:'Koala',   produto:'Stick Koala Morango'},
+  {marca:'Sublyme', produto:'Stick Morning Shot Limão'},
+  {marca:'Sublyme', produto:'Stick Morning Shot Melancia'},
+  {marca:'Sublyme', produto:'Stick Morning Shot Tangerina'},
+];
+
+// ── Estado ───────────────────────────────────────────────────────────────────
+let records      = [];
+let customSens   = []; // {key, label, type: 'stars'|'number'|'text'}
+let editingIdx   = null;
+const imgs       = {1:null,2:null};
+const ratings    = {sabor:0,textura:0,odor:0};
+const csRatings  = {}; // custom star ratings: key → value
+let aprov        = '';
+let statsOpen    = false;
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+(function init(){
+  try{ const s=localStorage.getItem('cq_v2_records'); if(s) records=JSON.parse(s); }catch(e){}
+  try{ const s=localStorage.getItem('cq_custom_sens'); if(s) customSens=JSON.parse(s); }catch(e){}
+
+  document.getElementById('fData').value = todayStr();
+
+  // Estrelas fixas
+  ['sabor','textura','odor'].forEach(k=>{
+    const el = document.getElementById('star-'+k);
+    for(let i=1;i<=5;i++){
+      const s=document.createElement('span');
+      s.className='star';s.innerHTML='★';s.dataset.val=i;
+      s.onclick=()=>setStar(k,i);
+      el.appendChild(s);
+    }
+  });
+
+  buildDatalist('');
+
+  const t=localStorage.getItem('cq_theme')||'dark';
+  document.documentElement.dataset.theme=t;
+  updateThemeIcon(t);
+
+  renderCustomSensGrid();
+  renderTableHeader();
+  renderTable();
+  renderStats();
+
+  // Delegação de clique para abrir/fechar o gráfico de cada sabor
+  document.getElementById('saborStats').addEventListener('click',e=>{
+    const head=e.target.closest('.sabor-item-head');
+    if(head) toggleSaborChart(decodeURIComponent(head.dataset.sabor));
+  });
+})();
+
+// ── Tema ─────────────────────────────────────────────────────────────────────
+function toggleTheme(){
+  const cur=document.documentElement.dataset.theme;
+  const next=cur==='dark'?'light':'dark';
+  document.documentElement.dataset.theme=next;
+  localStorage.setItem('cq_theme',next);
+  updateThemeIcon(next);
+  if(statsOpen) setTimeout(renderStats,50);
+}
+function updateThemeIcon(t){
+  document.getElementById('themeIco').className=t==='dark'?'ti ti-sun':'ti ti-moon';
+}
+
+// ── Datalist ─────────────────────────────────────────────────────────────────
+function buildDatalist(marca){
+  const dl=document.getElementById('productList');
+  dl.innerHTML='';
+  (marca?PRODUCTS.filter(p=>p.marca===marca):PRODUCTS).forEach(p=>{
+    const o=document.createElement('option');o.value=p.produto;dl.appendChild(o);
+  });
+}
+function onMarcaChange(){
+  const m=document.getElementById('fMarca').value;
+  buildDatalist(m);
+  const n=document.getElementById('fNome').value;
+  if(n&&m&&!PRODUCTS.find(p=>p.produto===n&&p.marca===m))
+    document.getElementById('fNome').value='';
+}
+function onProductInput(){
+  const v=document.getElementById('fNome').value;
+  const f=PRODUCTS.find(p=>p.produto.toLowerCase()===v.toLowerCase());
+  if(f){document.getElementById('fMarca').value=f.marca;buildDatalist(f.marca);}
+}
+function onProductChange(){ onProductInput(); }
+
+// ── Smart match ───────────────────────────────────────────────────────────────
+function matchProduct(name){
+  if(!name) return null;
+  const n=name.toLowerCase();
+  let f=PRODUCTS.find(p=>p.produto.toLowerCase()===n);
+  if(f) return f;
+  f=PRODUCTS.find(p=>p.produto.toLowerCase().includes(n)||n.includes(p.produto.toLowerCase()));
+  if(f) return f;
+  const flavors=['doce de leite','beijinho','choconilla','chocolate','vanilla','pistache',
+    'paçoca','lingua de gato','lajotinha','original','morango','baunilha',
+    'limão','limao','melancia','tangerina','creapure'];
+  for(const fl of flavors){
+    if(n.includes(fl)){
+      const ms=PRODUCTS.filter(p=>p.produto.toLowerCase().includes(fl));
+      if(ms.length===1) return ms[0];
+      if(n.includes('380')) return ms.find(p=>p.produto.includes('380'))||ms[0];
+      if(n.includes('220')) return ms.find(p=>p.produto.includes('220'))||ms[0];
+      if(n.includes('stick')) return ms.find(p=>p.produto.toLowerCase().includes('stick'))||ms[0];
+      if(ms.length) return ms[0];
+    }
+  }
+  return null;
+}
+
+// ── Custom sensorial ──────────────────────────────────────────────────────────
+function saveCustomSens(){
+  localStorage.setItem('cq_custom_sens',JSON.stringify(customSens));
+}
+
+function toggleAddSens(){
+  const f=document.getElementById('addSensForm');
+  f.style.display=f.style.display==='none'?'':'none';
+  if(f.style.display===''){
+    document.getElementById('newSensLabel').value='';
+    document.getElementById('newSensLabel').focus();
+  }
+}
+
+function addCustomSens(){
+  const label=document.getElementById('newSensLabel').value.trim();
+  const type =document.getElementById('newSensType').value;
+  if(!label){document.getElementById('newSensLabel').focus();return;}
+  const key='cs_'+Date.now();
+  customSens.push({key,label,type});
+  csRatings[key]=0;
+  saveCustomSens();
+  renderCustomSensGrid();
+  renderTableHeader();
+  renderTable();
+  toggleAddSens();
+}
+
+function removeCustomSens(key){
+  if(!confirm('Remover este critério?\nOs dados já salvos nos registros serão mantidos.')) return;
+  customSens=customSens.filter(s=>s.key!==key);
+  saveCustomSens();
+  renderCustomSensGrid();
+  renderTableHeader();
+  renderTable();
+}
+
+function renderCustomSensGrid(){
+  const grid=document.getElementById('sensGridCustom');
+  const count=document.getElementById('customCount');
+  grid.innerHTML='';
+  if(!customSens.length){
+    grid.style.display='none';
+    count.textContent='';
+    return;
+  }
+  grid.style.display='';
+  count.textContent=customSens.length+' critério'+(customSens.length>1?'s':'')+' adiciona'+(customSens.length>1?'dos':'do');
+
+  customSens.forEach(cs=>{
+    const div=document.createElement('div');
+    div.className='sens-item';
+
+    const lbl=document.createElement('div');
+    lbl.className='sens-lbl';
+    lbl.textContent=cs.label;
+
+    const rmBtn=document.createElement('button');
+    rmBtn.className='sens-remove';
+    rmBtn.innerHTML='×';
+    rmBtn.title='Remover critério';
+    rmBtn.onclick=()=>removeCustomSens(cs.key);
+
+    div.appendChild(rmBtn);
+    div.appendChild(lbl);
+
+    if(cs.type==='stars'){
+      const starsEl=document.createElement('div');
+      starsEl.className='stars';
+      starsEl.id='star-'+cs.key;
+      for(let i=1;i<=5;i++){
+        const s=document.createElement('span');
+        s.className='star'+(csRatings[cs.key]>=i?' on':'');
+        s.innerHTML='★';s.dataset.val=i;
+        s.onclick=()=>setCustomStar(cs.key,i);
+        starsEl.appendChild(s);
+      }
+      div.appendChild(starsEl);
+    } else if(cs.type==='number'){
+      const inp=document.createElement('input');
+      inp.type='number';inp.className='sens-inp';
+      inp.id='csinp_'+cs.key;inp.placeholder='0';inp.step='0.1';inp.min='0';
+      div.appendChild(inp);
+    } else {
+      const inp=document.createElement('input');
+      inp.type='text';inp.className='sens-inp-txt';
+      inp.id='csinp_'+cs.key;inp.placeholder='—';
+      div.appendChild(inp);
+    }
+    grid.appendChild(div);
+  });
+}
+
+function setCustomStar(key,val){
+  csRatings[key]=val;
+  const el=document.getElementById('star-'+key);
+  if(!el) return;
+  el.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<val));
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function todayStr(){return new Date().toISOString().slice(0,10);}
+function showSt(n,msg,type){
+  document.getElementById('st'+n).innerHTML='<div class="st-msg st-'+type+'">'+msg+'</div>';
+}
+function starStr(v){return v?'★'.repeat(v)+'☆'.repeat(5-v):'—';}
+function showSaved(){
+  const el=document.getElementById('savePill');
+  el.classList.add('show');clearTimeout(el._t);
+  el._t=setTimeout(()=>el.classList.remove('show'),2200);
+}
+function saveRecords(){
+  localStorage.setItem('cq_v2_records',JSON.stringify(records));
+  showSaved();
+}
+
+// ── Stars (fixos) ─────────────────────────────────────────────────────────────
+function setStar(key,val){
+  ratings[key]=val;
+  document.getElementById('star-'+key).querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<val));
+}
+
+// ── Approval ──────────────────────────────────────────────────────────────────
+function setAprov(val){
+  aprov=val;
+  document.getElementById('btnAprov').className='aprov-btn'+(val==='Aprovado'?' ok':'');
+  document.getElementById('btnRepr').className ='aprov-btn'+(val==='Reprovado'?' err':'');
+}
+
+// ── Images ────────────────────────────────────────────────────────────────────
+function handleImg(n,inp){
+  const file=inp.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    imgs[n]={dataUrl:e.target.result,mimeType:file.type||'image/jpeg'};
+    const prev=document.getElementById('prev'+n);
+    prev.src=e.target.result;prev.style.display='block';
+  };
+  reader.onerror=()=>showSt(n,'Erro ao ler a imagem.','err');
+  reader.readAsDataURL(file);
+}
+function getB64(n){return imgs[n]?imgs[n].dataUrl.split(',')[1]:null;}
+function getMime(n){
+  if(!imgs[n]) return 'image/jpeg';
+  const ok=['image/jpeg','image/png','image/gif','image/webp'];
+  return ok.includes(imgs[n].mimeType)?imgs[n].mimeType:'image/jpeg';
+}
+
+// ── AI call (Gemini, chave fixa) ──────────────────────────────────────────────
+async function callAI(imgN,prompt){
+  const b64=getB64(imgN); const mime=getMime(imgN);
+  const r=await fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/'+AI_MODEL+':generateContent?key='+AI_KEY,
+    {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{parts:[
+          {inline_data:{mime_type:mime,data:b64}},
+          {text:prompt}
+        ]}],
+        generationConfig:{temperature:0,maxOutputTokens:300}
+      })
+    }
+  );
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'Erro HTTP '+r.status);}
+  const d=await r.json();
+  return d.candidates[0].content.parts[0].text.trim();
+}
+
+// ── Ler rótulo ────────────────────────────────────────────────────────────────
+async function readLabel(){
+  if(!imgs[1]){showSt(1,'Faça upload da Foto 1 primeiro.','err');return;}
+  showSt(1,'⏳ Analisando rótulo…','info');
+  try{
+    const catalog=PRODUCTS.map(p=>p.produto).join(' | ');
+    const nome=await callAI(1,
+      'Esta é a foto do rótulo de um produto (suplemento alimentar ou cosmético). '+
+      'Nota: produtos "SuperCoffee" da Caffeine Army são listados como "SC [Sabor] [Peso]" (ex: SC Doce de Leite 220g). '+
+      'Lista de produtos cadastrados: '+catalog+'. '+
+      'Se o produto da foto corresponder a um da lista, responda EXATAMENTE com o nome da lista. '+
+      'Caso contrário, informe o nome que aparece na embalagem. '+
+      'Responda APENAS com o nome, sem aspas, sem explicações.'
+    );
+    const matched=matchProduct(nome);
+    if(matched){
+      document.getElementById('fNome').value =matched.produto;
+      document.getElementById('fMarca').value=matched.marca;
+      buildDatalist(matched.marca);
+      showSt(1,'✓ Produto: <b>'+matched.produto+'</b> · Marca: '+matched.marca,'ok');
+    } else {
+      document.getElementById('fNome').value=nome;
+      showSt(1,'✓ Nome detectado: '+nome+' (não encontrado no catálogo)','ok');
+    }
+  }catch(e){showSt(1,'Erro: '+e.message,'err');}
+}
+
+// ── Ler lote/validade ─────────────────────────────────────────────────────────
+async function readLoteVal(){
+  if(!imgs[2]){showSt(2,'Faça upload da Foto 2 primeiro.','err');return;}
+  showSt(2,'⏳ Lendo lote e validade…','info');
+  try{
+    const txt=await callAI(2,
+      'Esta foto contém informações de lote e validade de um produto. '+
+      'Encontre o número do LOTE e a data de VALIDADE. '+
+      'Responda SOMENTE neste JSON (sem markdown): '+
+      '{"validade":"DD/MM/AA","lote":"CODIGO_DO_LOTE"}'
+    );
+    const clean=txt.replace(/```json|```/g,'').trim();
+    let obj;
+    try{obj=JSON.parse(clean);}
+    catch{showSt(2,'Não foi possível extrair. Insira manualmente.','err');return;}
+    document.getElementById('fVal').value =obj.validade||'';
+    document.getElementById('fLote').value=obj.lote    ||'';
+    showSt(2,'✓ Validade: <b>'+(obj.validade||'—')+'</b> · Lote: <b>'+(obj.lote||'—')+'</b>','ok');
+  }catch(e){showSt(2,'Erro: '+e.message,'err');}
+}
+
+// ── Form ──────────────────────────────────────────────────────────────────────
+function getForm(){
+  const custom={};
+  customSens.forEach(cs=>{
+    if(cs.type==='stars'){
+      custom[cs.key]=csRatings[cs.key]||0;
+    } else {
+      const el=document.getElementById('csinp_'+cs.key);
+      custom[cs.key]=el?el.value:'';
+    }
+  });
+  return {
+    data:    document.getElementById('fData').value||todayStr(),
+    marca:   document.getElementById('fMarca').value.trim(),
+    nome:    document.getElementById('fNome').value.trim(),
+    lote:    document.getElementById('fLote').value.trim(),
+    val:     document.getElementById('fVal').value.trim(),
+    sabor:   ratings.sabor,
+    textura: ratings.textura,
+    odor:    ratings.odor,
+    ph:      document.getElementById('fPh').value,
+    obs:     document.getElementById('fObs').value.trim(),
+    aprov:   aprov,
+    custom,
+  };
+}
+
+function fillForm(r){
+  document.getElementById('fData').value =r.data ||todayStr();
+  document.getElementById('fMarca').value=r.marca||'';
+  buildDatalist(r.marca||'');
+  document.getElementById('fNome').value =r.nome ||'';
+  document.getElementById('fLote').value =r.lote ||'';
+  document.getElementById('fVal').value  =r.val  ||'';
+  document.getElementById('fPh').value   =r.ph   ||'';
+  document.getElementById('fObs').value  =r.obs  ||'';
+  setStar('sabor',  r.sabor  ||0);
+  setStar('textura',r.textura||0);
+  setStar('odor',   r.odor   ||0);
+  setAprov(r.aprov||'');
+  // Custom fields
+  if(r.custom){
+    customSens.forEach(cs=>{
+      const v=r.custom[cs.key];
+      if(cs.type==='stars') setCustomStar(cs.key,v||0);
+      else { const el=document.getElementById('csinp_'+cs.key); if(el) el.value=v||''; }
+    });
+  }
+}
+
+// ── CRUD ──────────────────────────────────────────────────────────────────────
+function addRow(){
+  const row=getForm();
+  if(!row.nome){alert('Informe o nome do produto antes de adicionar.');return;}
+  if(editingIdx!==null){
+    records[editingIdx]=row;cancelEdit();
+  } else {
+    records.push(row);clearForm();
+  }
+  saveRecords();renderTable();renderStats();
+}
+
+function editRow(i){
+  editingIdx=i;fillForm(records[i]);
+  document.getElementById('addBtn').innerHTML='<i class="ti ti-device-floppy"></i> Salvar edição';
+  document.getElementById('cancelBtn').style.display='';
+  document.getElementById('editBanner').style.display='flex';
+  document.getElementById('editLabel').textContent=records[i].nome||'#'+(i+1);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function cancelEdit(){
+  editingIdx=null;
+  document.getElementById('addBtn').innerHTML='<i class="ti ti-plus"></i> Adicionar registro';
+  document.getElementById('cancelBtn').style.display='none';
+  document.getElementById('editBanner').style.display='none';
+  clearForm();
+}
+
+function delRow(i){
+  if(!confirm('Excluir este registro?')) return;
+  records.splice(i,1);saveRecords();renderTable();renderStats();
+}
+
+function clearForm(){
+  document.getElementById('fData').value =todayStr();
+  document.getElementById('fMarca').value='';buildDatalist('');
+  document.getElementById('fNome').value ='';
+  document.getElementById('fLote').value ='';
+  document.getElementById('fVal').value  ='';
+  document.getElementById('fPh').value   ='';
+  document.getElementById('fObs').value  ='';
+  setStar('sabor',0);setStar('textura',0);setStar('odor',0);
+  setAprov('');
+  customSens.forEach(cs=>{
+    if(cs.type==='stars') setCustomStar(cs.key,0);
+    else { const el=document.getElementById('csinp_'+cs.key); if(el) el.value=''; }
+  });
+  imgs[1]=null;imgs[2]=null;
+  document.getElementById('prev1').style.display='none';
+  document.getElementById('prev2').style.display='none';
+  document.getElementById('st1').innerHTML='';
+  document.getElementById('st2').innerHTML='';
+  document.getElementById('img1').value='';
+  document.getElementById('img2').value='';
+}
+
+// ── Filters ───────────────────────────────────────────────────────────────────
+function getFiltered(){
+  const text =(document.getElementById('fltTxt').value||'').toLowerCase();
+  const aprov= document.getElementById('fltAprov').value;
+  const marca= document.getElementById('fltMarca').value;
+  const from = document.getElementById('fltFrom').value;
+  const to   = document.getElementById('fltTo').value;
+  return records.filter(r=>{
+    const mt=!text||
+      (r.nome||'').toLowerCase().includes(text)||
+      (r.lote||'').toLowerCase().includes(text)||
+      (r.val ||'').toLowerCase().includes(text)||
+      (r.marca||'').toLowerCase().includes(text)||
+      (r.obs ||'').toLowerCase().includes(text);
+    return mt&&(aprov==='all'||r.aprov===aprov)&&
+           (!marca||r.marca===marca)&&
+           (!from||r.data>=from)&&(!to||r.data<=to);
+  });
+}
+function applyFilter(){renderTable();}
+function clearFilter(){
+  document.getElementById('fltTxt').value  ='';
+  document.getElementById('fltAprov').value='all';
+  document.getElementById('fltMarca').value='';
+  document.getElementById('fltFrom').value ='';
+  document.getElementById('fltTo').value   ='';
+  renderTable();
+}
+
+// ── Table header (dynamic) ────────────────────────────────────────────────────
+function renderTableHeader(){
+  const row=document.getElementById('tblHeadRow');
+  const fixed=['Data','Marca','Produto','Lote','Validade',
+                'Sabor','Textura','Odor','pH','Aprovação','Obs.',''];
+  row.innerHTML=fixed.map(h=>'<th>'+h+'</th>').join('')+
+    customSens.map(cs=>'<th>'+cs.label+'</th>').join('');
+}
+
+function totalCols(){return 12+customSens.length;}
+
+// ── Table render ──────────────────────────────────────────────────────────────
+function renderTable(){
+  const tbody   =document.getElementById('tbody');
+  const filtered=getFiltered();
+  const total   =records.length;
+  const badge   =document.getElementById('countBadge');
+  badge.textContent=filtered.length!==total
+    ?'('+filtered.length+' de '+total+')'
+    :total?'('+total+')':'';
+
+  if(!filtered.length){
+    tbody.innerHTML=`<tr><td colspan="${totalCols()}" class="empty-state">
+      <i class="ti ti-clipboard"></i>
+      ${total?'Nenhum resultado para os filtros.':'Nenhum registro. Adicione o primeiro acima.'}
+    </td></tr>`;
+    return;
+  }
+  const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+  tbody.innerHTML=filtered.map(r=>{
+    const ri=records.indexOf(r);
+    const bAprov=r.aprov
+      ?`<span class="badge ${r.aprov==='Aprovado'?'b-ok':'b-err'}">${r.aprov}</span>`
+      :'<span style="color:var(--txt3)">—</span>';
+    const obsD=r.obs?(r.obs.length>22?r.obs.slice(0,22)+'…':r.obs):'—';
+
+    // Custom cells
+    const customCells=customSens.map(cs=>{
+      const v=r.custom?r.custom[cs.key]:undefined;
+      if(v===undefined||v===''||v===null||v===0) return '<td>—</td>';
+      if(cs.type==='stars') return '<td>'+starStr(v)+'</td>';
+      return '<td>'+esc(String(v))+'</td>';
+    }).join('');
+
+    return `<tr>
+      <td>${r.data}</td>
+      <td>${r.marca||'—'}</td>
+      <td title="${esc(r.nome)}">${r.nome||'—'}</td>
+      <td>${r.lote||'—'}</td>
+      <td>${r.val ||'—'}</td>
+      <td>${starStr(r.sabor)}</td>
+      <td>${starStr(r.textura)}</td>
+      <td>${starStr(r.odor)}</td>
+      <td>${r.ph  ||'—'}</td>
+      <td>${bAprov}</td>
+      <td title="${esc(r.obs)}">${obsD}</td>
+      <td><div class="row-btns">
+        <button class="row-btn edit" onclick="editRow(${ri})" title="Editar"><i class="ti ti-pencil"></i></button>
+        <button class="row-btn del"  onclick="delRow(${ri})"  title="Excluir"><i class="ti ti-trash"></i></button>
+      </div></td>
+      ${customCells}
+    </tr>`;
+  }).join('');
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+// Regras de agrupamento por sabor — reconhece o sabor pelo nome do produto,
+// independente de prefixo (Stick, SC, MS, Koala), sufixo de peso/gramatura,
+// ou pequenas variações de grafia.
+const SABOR_RULES=[
+  [/protein.*cappuccino|cappuccino.*protein/, 'SC Protein+ Cappuccino'],
+  [/protein.*caramelo|caramelo.*protein/,     'SC Protein+ Caramelo'],
+  [/koala.*morango|morango.*koala/,           'Koala Morango'],
+  [/koala.*chocolate|chocolate.*koala/,       'Koala Chocolate'],
+  [/melancia/,                                'MS Melancia'],
+  [/tangerina/,                               'MS Tangerina'],
+  [/limao/,                                   'MS Limão'],
+  [/lajotinha/,                               'SC Lajotinha'],
+  [/lingua de gato/,                          'SC Língua de Gato'],
+  [/doce de leite/,                           'SC Doce de Leite'],
+  [/beijinho/,                                'SC Beijinho'],
+  [/choconilla/,                              'SC Choconilla'],
+  [/chocolate/,                               'SC Chocolate'],
+  [/pistache/,                                'SC Pistache'],
+  [/original/,                                'SC Original'],
+  [/pacoca/,                                  'SC Paçoca'],
+  [/vanilla/,                                 'SC Vanilla Latte'],
+];
+function saborKey(nome){
+  if(!nome) return '(Sem produto)';
+  const norm=nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  for(const [re,label] of SABOR_RULES){
+    if(re.test(norm)) return label;
+  }
+  // Sem regra específica: mantém o nome, apenas removendo peso/gramatura do fim.
+  const stripped=nome.replace(/\s*-?\s*\d+(?:[.,]\d+)?\s*(?:g|kg|ml|l)\b\.?\s*$/i,'').trim();
+  return stripped || nome.trim() || '(Sem produto)';
+}
+
+function toggleStats(){
+  statsOpen=!statsOpen;
+  document.getElementById('statsBody').style.display=statsOpen?'':'none';
+  document.getElementById('statsToggle').classList.toggle('open',statsOpen);
+  if(statsOpen) renderStats();
+}
+
+let openSabores=new Set(); // sabores com gráfico expandido
+
+function toggleSaborChart(name){
+  if(openSabores.has(name)) openSabores.delete(name);
+  else openSabores.add(name);
+  renderStats();
+}
+
+function saborSlug(name){
+  return 'sc_'+String(name).split('').map(c=>c.charCodeAt(0)).join('_');
+}
+
+function renderStats(){
+  if(!statsOpen) return;
+  const total   =records.length;
+  const approved=records.filter(r=>r.aprov==='Aprovado').length;
+  const rejected=records.filter(r=>r.aprov==='Reprovado').length;
+  const rate    =total?Math.round((approved/total)*100):0;
+  document.getElementById('statCards').innerHTML=`
+    <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-card"><div class="stat-val ok">${approved}</div><div class="stat-lbl">Aprovados</div></div>
+    <div class="stat-card"><div class="stat-val err">${rejected}</div><div class="stat-lbl">Reprovados</div></div>
+    <div class="stat-card"><div class="stat-val accent">${rate}%</div><div class="stat-lbl">Taxa aprovação</div></div>`;
+
+  const esc=s=>(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const container=document.getElementById('saborStats');
+
+  if(!total){
+    container.innerHTML='<p style="font-size:12px;color:var(--txt3);text-align:center;padding:1rem 0">Sem dados para exibir.</p>';
+    return;
+  }
+
+  // ── Agrupa os registros por sabor, ignorando o peso/gramatura ───────────────
+  const groups={};
+  records.forEach(r=>{
+    const key=saborKey(r.nome);
+    (groups[key]=groups[key]||[]).push(r);
+  });
+  const names=Object.keys(groups).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+
+  // Monta o bloco de estatísticas de um sabor, com gráfico de barras expansível
+  function saborItemHtml(name){
+    const gRecords=groups[name];
+    const gApproved=gRecords.filter(r=>r.aprov==='Aprovado').length;
+    const gRate=gRecords.length?Math.round((gApproved/gRecords.length)*100):0;
+    const isOpen=openSabores.has(name);
+    const canvasId=saborSlug(name);
+
+    const hasR=gRecords.filter(r=>r.sabor||r.textura||r.odor);
+    const avg=key=>hasR.length?hasR.reduce((s,r)=>s+(r[key]||0),0)/hasR.length:0;
+    const ratingItems=[
+      {label:'Sabor',  val:avg('sabor')},
+      {label:'Textura',val:avg('textura')},
+      {label:'Odor',   val:avg('odor')},
+    ];
+    customSens.filter(cs=>cs.type==='stars').forEach(cs=>{
+      const hasV=gRecords.filter(r=>r.custom&&r.custom[cs.key]);
+      const v=hasV.length?hasV.reduce((s,r)=>s+(r.custom[cs.key]||0),0)/hasV.length:0;
+      ratingItems.push({label:cs.label,val:v});
+    });
+    const ratingsHtml=ratingItems.map(it=>
+      `<span>${esc(it.label)} <b>${it.val.toFixed(1)}</b></span>`).join('');
+
+    return `
+    <div class="sabor-item">
+      <div class="sabor-item-head" data-sabor="${encodeURIComponent(name)}">
+        <span class="sabor-item-name"><i class="ti ti-chevron-${isOpen?'down':'right'}"></i>${esc(name)}</span>
+        <span class="sabor-item-meta">${gRecords.length} registro${gRecords.length!==1?'s':''} · ${gRate}% aprovação</span>
+      </div>
+      <div class="sabor-item-ratings">${ratingsHtml}</div>
+      ${isOpen?`<div class="sabor-chart-wrap">
+        <div class="sabor-chart-ttl">Média sensorial</div>
+        <canvas id="${canvasId}" width="320" height="150"></canvas>
+      </div>`:''}
+    </div>`;
+  }
+
+  // ── Separa em quadrantes por marca, empilhados na sequência ─────────────────
+  const quadrants=[
+    {title:'SC',    test:n=>/^SC\b/i.test(n)},
+    {title:'Koala', test:n=>/^Koala\b/i.test(n)},
+    {title:'MS',    test:n=>/^MS\b/i.test(n)},
+  ];
+  const used=new Set();
+  const quadHtml=quadrants.map(q=>{
+    const qNames=names.filter(n=>q.test(n));
+    qNames.forEach(n=>used.add(n));
+    const body=qNames.length
+      ?qNames.map(saborItemHtml).join('')
+      :'<div class="quad-empty">Sem registros.</div>';
+    return `
+    <div class="quad-box">
+      <div class="quad-title"><i class="ti ti-tag"></i>${q.title}</div>
+      ${body}
+    </div>`;
+  });
+
+  // Sabores que não se encaixam em SC/Koala/MS entram em "Outros"
+  const otherNames=names.filter(n=>!used.has(n));
+  if(otherNames.length){
+    quadHtml.push(`
+    <div class="quad-box">
+      <div class="quad-title"><i class="ti ti-tag"></i>Outros</div>
+      ${otherNames.map(saborItemHtml).join('')}
+    </div>`);
+  }
+
+  container.innerHTML=`<div class="quad-grid">${quadHtml.join('')}</div>`;
+
+  // Desenha os gráficos de barras dos sabores atualmente expandidos
+  names.filter(n=>openSabores.has(n)).forEach(name=>{
+    const gRecords=groups[name];
+    const hasR=gRecords.filter(r=>r.sabor||r.textura||r.odor);
+    const avg=key=>hasR.length?hasR.reduce((s,r)=>s+(r[key]||0),0)/hasR.length:0;
+    const barItems=[
+      {label:'Sabor',  val:avg('sabor'),  color:'#6366f1'},
+      {label:'Textura',val:avg('textura'),color:'#818cf8'},
+      {label:'Odor',   val:avg('odor'),   color:'#a5b4fc'},
+    ];
+    const starColors=['#34d399','#f59e0b','#f87171','#60a5fa','#c084fc'];
+    customSens.filter(cs=>cs.type==='stars').forEach((cs,i)=>{
+      const hasV=gRecords.filter(r=>r.custom&&r.custom[cs.key]);
+      const v=hasV.length?hasV.reduce((s,r)=>s+(r.custom[cs.key]||0),0)/hasV.length:0;
+      barItems.push({label:cs.label,val:v,color:starColors[i%starColors.length]});
+    });
+    const canvas=document.getElementById(saborSlug(name));
+    if(canvas) drawBarChart(canvas,barItems);
+  });
+}
+
+// ── Canvas helpers ────────────────────────────────────────────────────────────
+function rrect(ctx,x,y,w,h,r){
+  if(w<2*r)r=w/2;if(h<2*r)r=h/2;
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+function isDark(){return document.documentElement.dataset.theme==='dark';}
+
+function drawBarChart(canvas,items){
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height,dark=isDark();
+  ctx.clearRect(0,0,W,H);
+  const pL=70,pR=50,pT=10,pB=10;
+  const cW=W-pL-pR,rowH=(H-pT-pB)/Math.max(items.length,1),barH=rowH*.45;
+  items.forEach((item,i)=>{
+    const y=pT+i*rowH+(rowH-barH)/2,bW=(item.val/5)*cW;
+    ctx.fillStyle=dark?'rgba(255,255,255,.06)':'rgba(0,0,0,.06)';
+    rrect(ctx,pL,y,cW,barH,4);ctx.fill();
+    if(bW>0){ctx.fillStyle=item.color;ctx.globalAlpha=.88;rrect(ctx,pL,y,bW,barH,4);ctx.fill();ctx.globalAlpha=1;}
+    ctx.fillStyle=dark?'#94a3b8':'#475569';ctx.font='11px Inter,sans-serif';
+    ctx.textAlign='right';ctx.textBaseline='middle';
+    ctx.fillText(item.label,pL-6,y+barH/2);
+    ctx.fillStyle=dark?'#f1f5f9':'#0f172a';ctx.textAlign='left';
+    ctx.fillText(item.val.toFixed(1)+'/5',pL+bW+6,y+barH/2);
+  });
+}
+
+// ── Export ────────────────────────────────────────────────────────────────────
+function exportCSV(){
+  if(!records.length){alert('Nenhum registro para exportar.');return;}
+  const fixedH=['Data','Marca','Produto','Lote','Validade',
+    'Sabor(★)','Textura(★)','Odor(★)','pH',
+    'Aprovação','Observações'];
+  const customH=customSens.map(cs=>cs.label);
+  const header=[...fixedH,...customH];
+  const rows=records.map(r=>{
+    const fixedCells=[
+      r.data,r.marca,
+      '"'+(r.nome||'').replace(/"/g,'""')+'"',
+      r.lote,r.val,r.sabor,r.textura,r.odor,r.ph,r.aprov,
+      '"'+(r.obs||'').replace(/"/g,'""')+'"'
+    ];
+    const customCells=customSens.map(cs=>{
+      const v=r.custom?r.custom[cs.key]:'';
+      return cs.type==='text'?'"'+(v||'').replace(/"/g,'""')+'"':(v||'');
+    });
+    return [...fixedCells,...customCells].join(',');
+  });
+  const csv=[header.join(',')].concat(rows).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='controle_qualidade_'+todayStr()+'.csv';a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportExcel(){
+  if(!records.length){alert('Nenhum registro para exportar.');return;}
+  if(typeof XLSX==='undefined'){alert('Não foi possível carregar a biblioteca de exportação. Verifique sua conexão com a internet e tente novamente.');return;}
+
+  const fixedH=['Data','Marca','Produto','Lote','Validade',
+    'Sabor','Textura','Odor','pH','Aprovação','Observações'];
+  const customH=customSens.map(cs=>cs.label);
+  const header=[...fixedH,...customH];
+
+  const rows=records.map(r=>{
+    const fixedCells=[
+      r.data||'', r.marca||'', r.nome||'', r.lote||'', r.val||'',
+      r.sabor||'', r.textura||'', r.odor||'', r.ph||'', r.aprov||'', r.obs||''
+    ];
+    const customCells=customSens.map(cs=>{
+      const v=r.custom?r.custom[cs.key]:'';
+      return v==null?'':v;
+    });
+    return [...fixedCells,...customCells];
+  });
+
+  const ws=XLSX.utils.aoa_to_sheet([header,...rows]);
+
+  // Largura de cada coluna ajustada ao conteúdo, mantendo 1 coluna do arquivo = 1 coluna da planilha
+  ws['!cols']=header.map((h,i)=>{
+    const colVals=rows.map(row=>String(row[i]??''));
+    const maxLen=Math.max(h.length,...colVals.map(v=>v.length));
+    return {wch:Math.min(Math.max(maxLen+2,10),45)};
+  });
+
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'Registros');
+  XLSX.writeFile(wb,'controle_qualidade_'+todayStr()+'.xlsx');
+}
+
+function exportPDF(){
+  if(!statsOpen){statsOpen=true;document.getElementById('statsBody').style.display='';renderStats();}
+  setTimeout(()=>window.print(),200);
+}
+</script>
+</body>
+</html>
